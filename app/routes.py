@@ -305,12 +305,12 @@ def reports():
 
         # Gender distribution
         gender_counts = db.session.execute(
-            text("SELECT gender, COUNT(*) FROM patient GROUP BY gender")
+            text("SELECT gender, COUNT(*) FROM patients GROUP BY gender")
         ).fetchall()
 
         # Blood type distribution
         bloodtype_counts = db.session.execute(
-            text("SELECT blood_type, COUNT(*) FROM patient GROUP BY blood_type")
+            text("SELECT blood_type, COUNT(*) FROM patients GROUP BY blood_type")
         ).fetchall()
 
         # Appointment status distribution
