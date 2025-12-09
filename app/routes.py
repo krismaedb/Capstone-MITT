@@ -13,8 +13,47 @@ main_bp = Blueprint('main', __name__)
 def index():
     return render_template('index.html')
 
-@main_bp.route('/appointment')
+@main_bp.route('/appointment', methods=['GET', 'POST'])
 def appointment():
+    if request.method == 'POST':
+        try:
+            full_name = request.form.get('full_name')
+            email = request.form.get('email')
+            phone = request.form.get('phone')
+            appt_date = request.form.get('appointment_date')
+            appt_time = request.form.get('appointment_time')
+            doctor = request.form.get('doctor')
+            department = request.form.get('department')
+            reason = request.form.get('reason')
+
+            # Convert date
+            appointment_date = datetime.strptime(appt_date, '%Y-%m-%d').date()
+
+            # Save appointment (no patient_id because public user)
+            new_appt = Appointment(
+                patient_id=None,
+                patient_name=full_name,
+                patient_email=email,
+                patient_phone=phone,
+                appointment_date=appointment_date,
+                appointment_time=appt_time,
+                doctor=doctor,
+                department=department,
+                reason=reason,
+                status='pending',
+                notes=None
+            )
+
+            db.session.add(new_appt)
+            db.session.commit()
+
+            flash("Your appointment request has been submitted! We will contact you soon.", "success")
+            return redirect(url_for('main.appointment'))
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error submitting request: {str(e)}", "error")
+
     return render_template('appointment.html')
 
 # ========== AUTHENTICATION ==========
@@ -344,3 +383,4 @@ def reports():
     except Exception as e:
         flash(f"Error loading reports: {str(e)}", "error")
         return redirect(url_for('main.dashboard'))
+    

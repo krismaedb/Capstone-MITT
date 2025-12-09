@@ -1,84 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Book Appointment | HealthClinic</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
+{% extends "base_dashboard.html" %}
+{% block content %}
 
-<body class="bg-light">
+<div class="container mt-4" style="max-width: 700px;">
+    <h2 class="mb-4 text-center">Request an Appointment</h2>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container">
-        <a class="navbar-brand" href="/">HealthClinic</a>
-        <div>
-            <a href="/" class="btn btn-light btn-sm">Home</a>
-        </div>
-    </div>
-</nav>
+    <form action="/appointment" method="POST" class="card p-4 shadow-sm">
 
-<div class="container mt-5">
-    <div class="card shadow">
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">Book an Appointment</h4>
+        <div class="mb-3">
+            <label class="form-label">Full Name <span class="text-danger">*</span></label>
+            <input type="text" name="patient_name" class="form-control" required>
         </div>
 
-        <div class="card-body">
-            <form>
-
-                <!-- Patient Name -->
-                <div class="mb-3">
-                    <label class="form-label">Full Name</label>
-                    <input type="text" class="form-control" placeholder="Enter your full name">
-                </div>
-
-                <!-- Email -->
-                <div class="mb-3">
-                    <label class="form-label">Email Address</label>
-                    <input type="email" class="form-control" placeholder="example@mail.com">
-                </div>
-
-                <!-- Phone -->
-                <div class="mb-3">
-                    <label class="form-label">Phone Number</label>
-                    <input type="tel" name="phone" class="form-control" placeholder="204-555-1234" required>
-                </div>
-
-                <!-- Doctor -->
-                <div class="mb-3">
-                    <label class="form-label">Select Doctor</label>
-                    <select class="form-select">
-                        <option>Dr. Reyes – General Medicine</option>
-                        <option>Dr. Lee – Pediatrics</option>
-                        <option>Dr. Susi – Dermatology</option>
-                    </select>
-                </div>
-
-                <!-- Date -->
-                <div class="mb-3">
-                    <label class="form-label">Preferred Date</label>
-                    <input type="date" class="form-control">
-                </div>
-
-                <!-- Time -->
-                <div class="mb-3">
-                    <label class="form-label">Preferred Time</label>
-                    <input type="time" class="form-control">
-                </div>
-
-                <!-- Reason -->
-                <div class="mb-3">
-                    <label class="form-label">Reason for Visit</label>
-                    <textarea class="form-control" rows="3" placeholder="Describe your concern..."></textarea>
-                </div>
-
-                <button type="submit" class="btn btn-primary w-100">Submit Appointment</button>
-
-            </form>
+        <div class="mb-3">
+            <label class="form-label">Email <span class="text-danger">*</span></label>
+            <input type="email" name="patient_email" class="form-control" required>
         </div>
-    </div>
+
+        <div class="mb-3">
+            <label class="form-label">Phone <span class="text-danger">*</span></label>
+            <input type="text" name="patient_phone" class="form-control" required>
+        </div>
+
+        <div class="row">
+            <div class="col mb-3">
+                <label class="form-label">Appointment Date <span class="text-danger">*</span></label>
+                <input type="date" name="appointment_date" class="form-control" required>
+            </div>
+
+            <div class="col mb-3">
+                <label class="form-label">Time <span class="text-danger">*</span></label>
+                <input type="time" name="appointment_time" class="form-control" required>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Doctor</label>
+            <input type="text" name="doctor" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Department</label>
+            <input type="text" name="department" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Reason for Appointment <span class="text-danger">*</span></label>
+            <textarea name="reason" class="form-control" rows="4" required></textarea>
+        </div>
+
+        <button class="btn btn-primary w-100">Submit Appointment Request</button>
+    </form>
 </div>
 
-</body>
-</html>
-
+{% endblock %}
