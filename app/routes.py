@@ -3,6 +3,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from datetime import datetime, date
 from . import db
 from .models import User, Patient, Appointment
+from sqlalchemy import text, func
 
 main_bp = Blueprint('main', __name__)
 
@@ -294,7 +295,6 @@ def appointments_delete(id):
         flash(f'Error deleting appointment: {str(e)}', 'error')
     return redirect(url_for('main.appointments_list'))
 
-from sqlalchemy import text
 
 @main_bp.route('/reports')
 @login_required
@@ -305,28 +305,31 @@ def reports():
 
         # Gender distribution
         gender_counts = db.session.execute(
-            text("SELECT gender, COUNT(*) FROM patients GROUP BY gender")
+            text("SELECT gender, COUNT(*) as count FROM patients GROUP BY gender")
         ).fetchall()
 
         # Blood type distribution
         bloodtype_counts = db.session.execute(
-            text("SELECT blood_type, COUNT(*) FROM patients GROUP BY blood_type")
+            text("SELECT blood_type, COUNT(*) as count FROM patients GROUP BY blood_type")
         ).fetchall()
 
         # Appointment status distribution
         appt_status_counts = db.session.execute(
-            text("SELECT status, COUNT(*) FROM appointments GROUP BY status")
+            text("SELECT status, COUNT(*) as count FROM appointments GROUP BY status")
         ).fetchall()
 
-        # Appointments per month
+        # Appointments per month (PostgreSQL-safe version)
         appt_monthly = db.session.execute(
             text("""
                 SELECT 
                     TO_CHAR(appointment_date, 'Mon YYYY') AS month,
-                    COUNT(*)
+                    COUNT(*) as count
                 FROM appointments
-                GROUP BY month
-                ORDER BY MIN(appointment_date)
+                GROUP BY TO_CHAR(appointment_date, 'Mon YYYY'), 
+                         EXTRACT(YEAR FROM appointment_date),
+                         EXTRACT(MONTH FROM appointment_date)
+                ORDER BY EXTRACT(YEAR FROM appointment_date),
+                         EXTRACT(MONTH FROM appointment_date)
             """)
         ).fetchall()
 
