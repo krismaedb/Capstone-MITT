@@ -1,0 +1,88 @@
+{% extends "base_dashboard.html" %}
+{% block title %}Appointments | HealthClinic{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-calendar-alt"></i> Appointments</h2>
+    <a href="/appointments/book" class="btn btn-primary"><i class="fas fa-calendar-plus"></i> Book Appointment</a>
+</div>
+
+<!-- FILTERS -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" action="/appointments" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-control">
+                    <option value="">All Status</option>
+                    <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="confirmed" {% if status_filter == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                    <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+                    <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Date</label>
+                <input type="date" name="date" class="form-control" value="{{ date_filter }}">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">&nbsp;</label>
+                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter"></i> Filter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- APPOINTMENTS TABLE -->
+{% if appointments %}
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Patient</th>
+                        <th>Doctor</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Department</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appt in appointments %}
+                    <tr>
+                        <td><strong>#{{ appt.id }}</strong></td>
+                        <td><i class="fas fa-user"></i> {{ appt.patient_name }}</td>
+                        <td><i class="fas fa-user-md"></i> {{ appt.doctor }}</td>
+                        <td><i class="fas fa-calendar"></i> {{ appt.appointment_date.strftime('%Y-%m-%d') }}</td>
+                        <td><i class="fas fa-clock"></i> {{ appt.appointment_time }}</td>
+                        <td>{{ appt.department or 'N/A' }}</td>
+                        <td>
+                            <span class="badge badge-{{ appt.status }}">{{ appt.status|capitalize }}</span>
+                        </td>
+                        <td>
+                            <a href="/appointments/view/{{ appt.id }}" class="btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
+                            <form method="POST" action="/appointments/delete/{{ appt.id }}" style="display:inline;" onsubmit="return confirm('Delete this appointment?');">
+                                <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <p class="text-muted mt-3">Total: {{ appointments|length }} appointment(s)</p>
+    </div>
+</div>
+{% else %}
+<div class="card">
+    <div class="card-body text-center py-5">
+        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+        <p class="text-muted">No appointments found.</p>
+        <a href="/appointments/book" class="btn btn-primary">Book First Appointment</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

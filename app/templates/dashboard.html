@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | HealthClinic</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .sidebar { position: fixed; top: 0; left: 0; height: 100vh; width: 250px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 0; overflow-y: auto; z-index: 1000; }
+        .sidebar-header { padding: 1.5rem; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); }
+        .sidebar-header h4 { margin: 0; font-weight: bold; }
+        .sidebar-menu { list-style: none; padding: 0; margin: 1rem 0; }
+        .sidebar-menu li { margin: 0; }
+        .sidebar-menu a { display: block; padding: 1rem 1.5rem; color: rgba(255,255,255,0.8); text-decoration: none; transition: all 0.3s; }
+        .sidebar-menu a:hover, .sidebar-menu a.active { background: rgba(255,255,255,0.1); color: white; border-left: 3px solid white; }
+        .sidebar-menu i { width: 20px; margin-right: 10px; }
+        .main-content { margin-left: 250px; padding: 2rem; min-height: 100vh; }
+        .top-bar { background: white; padding: 1rem 2rem; border-radius: 10px; margin-bottom: 2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+        .stats-card { background: white; border-radius: 10px; padding: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: transform 0.3s; }
+        .stats-card:hover { transform: translateY(-5px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+        .stats-card .icon { font-size: 2.5rem; margin-bottom: 1rem; }
+        .stats-card h3 { font-size: 2rem; font-weight: bold; margin: 0; }
+        .stats-card p { color: #6c757d; margin: 0; }
+        .card { border: none; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .table th { background: #f8f9fa; font-weight: 600; }
+        .badge-pending { background: #ffc107; color: white; }
+        .badge-confirmed { background: #28a745; color: white; }
+        .badge-cancelled { background: #dc3545; color: white; }
+        .badge-completed { background: #6c757d; color: white; }
+        .user-info { display: flex; align-items: center; gap: 1rem; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <div class="sidebar-header">
+        <i class="fas fa-hospital-alt fa-2x mb-2"></i>
+        <h4>HealthClinic</h4>
+        <small>Staff Portal</small>
+    </div>
+    <ul class="sidebar-menu">
+        <li><a href="/dashboard" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+        <li><a href="/patients"><i class="fas fa-users"></i> Patients</a></li>
+        <li><a href="/appointments"><i class="fas fa-calendar-alt"></i> Appointments</a></li>
+        {% if current_user.role == 'admin' or current_user.role == 'it' %}
+        <li><a href="/staff"><i class="fas fa-user-md"></i> Staff Management</a></li>
+        {% endif %}
+        <li><a href="/reports"><i class="fas fa-chart-line"></i> Reports</a></li>
+        {% if current_user.role == 'it' %}
+        <li><a href="/monitoring"><i class="fas fa-server"></i> IT Monitoring</a></li>
+        {% endif %}
+        <li><a href="/settings"><i class="fas fa-cog"></i> Settings</a></li>
+        <li><a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+    </ul>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+    <!-- TOP BAR -->
+    <div class="top-bar">
+        <div>
+            <h2 class="mb-0">Dashboard</h2>
+            <small class="text-muted">Welcome back, {{ current_user.full_name }}!</small>
+        </div>
+        <div class="user-info">
+            <div>
+                <strong>{{ current_user.full_name }}</strong><br>
+                <small class="text-muted">
+                    {% if current_user.role == 'admin' %}Administrator
+                    {% elif current_user.role == 'it' %}IT Staff
+                    {% elif current_user.role == 'doctor' %}Doctor
+                    {% elif current_user.role == 'nurse' %}Nurse
+                    {% endif %}
+                </small>
+            </div>
+            <div class="user-avatar">{{ current_user.full_name[0] }}</div>
+        </div>
+    </div>
+
+    <!-- FLASH MESSAGES -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- STATS CARDS -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="icon text-primary"><i class="fas fa-users"></i></div>
+                <h3>{{ total_patients }}</h3>
+                <p>Total Patients</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="icon text-success"><i class="fas fa-calendar-check"></i></div>
+                <h3>{{ today_appointments }}</h3>
+                <p>Appointments Today</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="icon text-warning"><i class="fas fa-clock"></i></div>
+                <h3>{{ pending_appointments }}</h3>
+                <p>Pending Approvals</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="icon text-info"><i class="fas fa-calendar-alt"></i></div>
+                <h3>{{ total_appointments }}</h3>
+                <p>Total Appointments</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card p-3">
+                <h5 class="mb-3"><i class="fas fa-bolt"></i> Quick Actions</h5>
+                <div class="d-flex gap-2">
+                    <a href="/patients/add" class="btn btn-primary"><i class="fas fa-user-plus"></i> Add New Patient</a>
+                    <a href="/appointments/book" class="btn btn-success"><i class="fas fa-calendar-plus"></i> Book Appointment</a>
+                    <a href="/appointments" class="btn btn-warning"><i class="fas fa-clock"></i> View Pending ({{ pending_appointments }})</a>
+                    <a href="/reports" class="btn btn-info"><i class="fas fa-chart-bar"></i> Generate Report</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RECENT APPOINTMENTS -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-calendar-alt"></i> Recent Appointments</h5>
+                    {% if recent_appointments %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Patient Name</th>
+                                    <th>Doctor</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for appointment in recent_appointments %}
+                                <tr>
+                                    <td>#{{ appointment.id }}</td>
+                                    <td><i class="fas fa-user"></i> {{ appointment.patient_name }}</td>
+                                    <td><i class="fas fa-user-md"></i> {{ appointment.doctor }}</td>
+                                    <td><i class="fas fa-calendar"></i> {{ appointment.appointment_date.strftime('%Y-%m-%d') }}</td>
+                                    <td><i class="fas fa-clock"></i> {{ appointment.appointment_time }}</td>
+                                    <td>
+                                        <span class="badge badge-{{ appointment.status }}">
+                                            {{ appointment.status|capitalize }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="/appointments/view/{{ appointment.id }}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="/appointments" class="btn btn-outline-primary">View All Appointments</a>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No appointments found.</p>
+                        <a href="/appointments/book" class="btn btn-primary">Book First Appointment</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="text-center mt-4 text-muted">
+        <small>© 2025 HealthClinic | MITT Capstone Project | Server: WEB01 (10.10.40.30)</small>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
