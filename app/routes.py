@@ -293,3 +293,53 @@ def appointments_delete(id):
         db.session.rollback()
         flash(f'Error deleting appointment: {str(e)}', 'error')
     return redirect(url_for('main.appointments_list'))
+
+@main_bp.route('/reports')
+@login_required
+def reports():
+    try:
+        # Total patients
+        total_patients = db.session.query(Patient).count()
+
+        # Gender distribution
+        gender_counts = db.session.execute(
+            text("SELECT gender, COUNT(*) as count FROM patients GROUP BY gender")
+        ).fetchall()
+
+        # Blood type distribution
+        bloodtype_counts = db.session.execute(
+            text("SELECT blood_type, COUNT(*) as count FROM patients GROUP BY blood_type")
+        ).fetchall()
+
+        # Appointment status distribution
+        appt_status_counts = db.session.execute(
+            text("SELECT status, COUNT(*) as count FROM appointments GROUP BY status")
+        ).fetchall()
+
+        # Appointments per month (PostgreSQL-safe version)
+        appt_monthly = db.session.execute(
+            text("""
+                SELECT 
+                    TO_CHAR(appointment_date, 'Mon YYYY') AS month,
+                    COUNT(*) as count
+                FROM appointments
+                GROUP BY TO_CHAR(appointment_date, 'Mon YYYY'), 
+                         EXTRACT(YEAR FROM appointment_date),
+                         EXTRACT(MONTH FROM appointment_date)
+                ORDER BY EXTRACT(YEAR FROM appointment_date),
+                         EXTRACT(MONTH FROM appointment_date)
+            """)
+        ).fetchall()
+
+        return render_template(
+            'reports.html',
+            total_patients=total_patients,
+            gender_counts=gender_counts,
+            bloodtype_counts=bloodtype_counts,
+            appt_status_counts=appt_status_counts,
+            appt_monthly=appt_monthly
+        )
+
+    except Exception as e:
+        flash(f"Error loading reports: {str(e)}", "error")
+        return redirect(url_for('main.dashboard'))
