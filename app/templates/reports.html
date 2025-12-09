@@ -1,0 +1,97 @@
+{% extends "base_dashboard.html" %}
+{% block title %}Reports & Analytics{% endblock %}
+
+{% block content %}
+<h2><i class="fas fa-chart-bar"></i> Reports & Analytics</h2>
+
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card p-3 text-center">
+            <h4>Total Patients</h4>
+            <h2>{{ total_patients }}</h2>
+        </div>
+    </div>
+</div>
+
+<hr>
+
+<h4>Patient Gender Distribution</h4>
+<canvas id="genderChart" height="120"></canvas>
+
+<h4 class="mt-5">Blood Type Distribution</h4>
+<canvas id="bloodChart" height="120"></canvas>
+
+<h4 class="mt-5">Appointment Status</h4>
+<canvas id="statusChart" height="120"></canvas>
+
+<h4 class="mt-5">Appointments Per Month</h4>
+<canvas id="monthChart" height="120"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Convert backend data → JS arrays
+const genderLabels = {{ gender_counts|map(attribute=0)|list }};
+const genderData = {{ gender_counts|map(attribute=1)|list }};
+
+const bloodLabels = {{ bloodtype_counts|map(attribute=0)|list }};
+const bloodData = {{ bloodtype_counts|map(attribute=1)|list }};
+
+const statusLabels = {{ appt_status_counts|map(attribute=0)|list }};
+const statusData = {{ appt_status_counts|map(attribute=1)|list }};
+
+const monthLabels = {{ appt_monthly|map(attribute=0)|list }};
+const monthData = {{ appt_monthly|map(attribute=1)|list }};
+
+// Gender Chart
+new Chart(document.getElementById('genderChart'), {
+    type: 'pie',
+    data: {
+        labels: genderLabels,
+        datasets: [{
+            data: genderData,
+            backgroundColor: ['#3498db', '#e74c3c', '#9b59b6']
+        }]
+    }
+});
+
+// Blood Type Chart
+new Chart(document.getElementById('bloodChart'), {
+    type: 'bar',
+    data: {
+        labels: bloodLabels,
+        datasets: [{
+            data: bloodData,
+            backgroundColor: '#1abc9c'
+        }]
+    }
+});
+
+// Status Chart
+new Chart(document.getElementById('statusChart'), {
+    type: 'doughnut',
+    data: {
+        labels: statusLabels,
+        datasets: [{
+            data: statusData,
+            backgroundColor: ['#f1c40f', '#2ecc71', '#e67e22', '#e74c3c']
+        }]
+    }
+});
+
+// Monthly Appointments
+new Chart(document.getElementById('monthChart'), {
+    type: 'line',
+    data: {
+        labels: monthLabels,
+        datasets: [{
+            label: 'Appointments',
+            data: monthData,
+            borderColor: '#2980b9',
+            fill: false
+        }]
+    }
+});
+</script>
+
+{% endblock %}
