@@ -293,3 +293,9 @@ def appointments_delete(id):
         db.session.rollback()
         flash(f'Error deleting appointment: {str(e)}', 'error')
     return redirect(url_for('main.appointments_list'))
+
+@main_bp.route('/reports')
+@login_required
+def reports():
+    # Get stats
+    return render_template('reports.html', stats=stats)
