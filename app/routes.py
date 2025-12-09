@@ -315,7 +315,7 @@ def reports():
 
         # Appointment status distribution
         appt_status_counts = db.session.execute(
-            text("SELECT status, COUNT(*) FROM appointment GROUP BY status")
+            text("SELECT status, COUNT(*) FROM appointments GROUP BY status")
         ).fetchall()
 
         # Appointments per month
@@ -324,7 +324,7 @@ def reports():
                 SELECT 
                     TO_CHAR(appointment_date, 'Mon YYYY') AS month,
                     COUNT(*)
-                FROM appointment
+                FROM appointments
                 GROUP BY month
                 ORDER BY MIN(appointment_date)
             """)
