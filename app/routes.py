@@ -3,6 +3,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from datetime import datetime, date
 from . import db
 from .models import User, Patient, Appointment
+from sqlalchemy import text
 
 main_bp = Blueprint('main', __name__)
 
