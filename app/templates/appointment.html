@@ -1,55 +1,84 @@
-{% extends "base_dashboard.html" %}
+{% extends "base.html" %}
 {% block content %}
 
-<div class="container mt-4" style="max-width: 700px;">
-    <h2 class="mb-4 text-center">Request an Appointment</h2>
+<div class="container py-5" style="max-width: 650px;">
 
-    <form action="/appointment" method="POST" class="card p-4 shadow-sm">
+    <h2 class="text-center mb-4 fw-bold">Book an Appointment</h2>
 
-        <div class="mb-3">
-            <label class="form-label">Full Name <span class="text-danger">*</span></label>
-            <input type="text" name="patient_name" class="form-control" required>
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <form action="{{ url_for('main.appointment') }}" method="POST">
+
+                <!-- Full Name -->
+                <div class="mb-3">
+                    <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                    <input type="text" name="full_name" class="form-control" required>
+                </div>
+
+                <!-- Email -->
+                <div class="mb-3">
+                    <label class="form-label">Email <span class="text-danger">*</span></label>
+                    <input type="email" name="email" class="form-control" required>
+                </div>
+
+                <!-- Phone -->
+                <div class="mb-3">
+                    <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                    <input type="text" name="phone" class="form-control" required>
+                </div>
+
+                <!-- Date -->
+                <div class="mb-3">
+                    <label class="form-label">Appointment Date <span class="text-danger">*</span></label>
+                    <input type="date" name="appointment_date" class="form-control" required>
+                </div>
+
+                <!-- Time -->
+                <div class="mb-3">
+                    <label class="form-label">Preferred Time <span class="text-danger">*</span></label>
+                    <input type="time" name="appointment_time" class="form-control" required>
+                </div>
+
+                <!-- Doctor -->
+                <div class="mb-3">
+                    <label class="form-label">Doctor <span class="text-danger">*</span></label>
+                    <select name="doctor" class="form-select" required>
+                        <option value="" disabled selected>Select a doctor</option>
+                        <option value="Dr. Reyes">Dr. Reyes</option>
+                        <option value="Dr. Santos">Dr. Santos</option>
+                        <option value="Dr. Cruz">Dr. Cruz</option>
+                    </select>
+                </div>
+
+                <!-- Department -->
+                <div class="mb-3">
+                    <label class="form-label">Department <span class="text-danger">*</span></label>
+                    <select name="department" class="form-select" required>
+                        <option value="" disabled selected>Select a department</option>
+                        <option value="General Medicine">General Medicine</option>
+                        <option value="Pediatrics">Pediatrics</option>
+                        <option value="OB-Gyne">OB-Gyne</option>
+                        <option value="Dental">Dental</option>
+                    </select>
+                </div>
+
+                <!-- Reason -->
+                <div class="mb-3">
+                    <label class="form-label">Reason for Appointment</label>
+                    <textarea name="reason" class="form-control" rows="3"></textarea>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+                    Submit Appointment Request
+                </button>
+
+            </form>
+
         </div>
+    </div>
 
-        <div class="mb-3">
-            <label class="form-label">Email <span class="text-danger">*</span></label>
-            <input type="email" name="patient_email" class="form-control" required>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Phone <span class="text-danger">*</span></label>
-            <input type="text" name="patient_phone" class="form-control" required>
-        </div>
-
-        <div class="row">
-            <div class="col mb-3">
-                <label class="form-label">Appointment Date <span class="text-danger">*</span></label>
-                <input type="date" name="appointment_date" class="form-control" required>
-            </div>
-
-            <div class="col mb-3">
-                <label class="form-label">Time <span class="text-danger">*</span></label>
-                <input type="time" name="appointment_time" class="form-control" required>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Doctor</label>
-            <input type="text" name="doctor" class="form-control">
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Department</label>
-            <input type="text" name="department" class="form-control">
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Reason for Appointment <span class="text-danger">*</span></label>
-            <textarea name="reason" class="form-control" rows="4" required></textarea>
-        </div>
-
-        <button class="btn btn-primary w-100">Submit Appointment Request</button>
-    </form>
 </div>
 
 {% endblock %}

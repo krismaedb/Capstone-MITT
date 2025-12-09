@@ -17,42 +17,38 @@ def index():
 def appointment():
     if request.method == 'POST':
         try:
-            full_name = request.form.get('full_name')
+            name = request.form.get('name')
             email = request.form.get('email')
             phone = request.form.get('phone')
-            appt_date = request.form.get('appointment_date')
+            appt_date = datetime.strptime(request.form.get('appointment_date'), '%Y-%m-%d').date()
             appt_time = request.form.get('appointment_time')
             doctor = request.form.get('doctor')
             department = request.form.get('department')
             reason = request.form.get('reason')
 
-            # Convert date
-            appointment_date = datetime.strptime(appt_date, '%Y-%m-%d').date()
-
-            # Save appointment (no patient_id because public user)
-            new_appt = Appointment(
+            appointment = Appointment(
                 patient_id=None,
-                patient_name=full_name,
+                patient_name=name,
                 patient_email=email,
                 patient_phone=phone,
-                appointment_date=appointment_date,
+                appointment_date=appt_date,
                 appointment_time=appt_time,
                 doctor=doctor,
                 department=department,
                 reason=reason,
-                status='pending',
+                status="pending",   # <-- FIXED: Public form = pending
                 notes=None
             )
 
-            db.session.add(new_appt)
+            db.session.add(appointment)
             db.session.commit()
 
-            flash("Your appointment request has been submitted! We will contact you soon.", "success")
+            flash("Your appointment request has been submitted! Please wait for admin approval.", "success")
             return redirect(url_for('main.appointment'))
 
         except Exception as e:
             db.session.rollback()
-            flash(f"Error submitting request: {str(e)}", "error")
+            flash(f"Error submitting appointment: {str(e)}", "error")
 
     return render_template('appointment.html')
 
