@@ -294,55 +294,51 @@ def appointments_delete(id):
         flash(f'Error deleting appointment: {str(e)}', 'error')
     return redirect(url_for('main.appointments_list'))
 
+from sqlalchemy import text
+
 @main_bp.route('/reports')
 @login_required
 def reports():
     try:
-        # Patient stats
-        total_patients = Patient.query.count()
-        male_patients = Patient.query.filter_by(gender='Male').count()
-        female_patients = Patient.query.filter_by(gender='Female').count()
+        # Total patients
+        total_patients = db.session.query(Patient).count()
 
-        # Appointment stats
-        total_appointments = Appointment.query.count()
-        pending_appointments = Appointment.query.filter_by(status='pending').count()
-        confirmed_appointments = Appointment.query.filter_by(status='confirmed').count()
-        cancelled_appointments = Appointment.query.filter_by(status='cancelled').count()
+        # Gender distribution
+        gender_counts = db.session.execute(
+            text("SELECT gender, COUNT(*) FROM patient GROUP BY gender")
+        ).fetchall()
 
-        # Appointments by month (for charts)
-        monthly_counts = db.session.execute("""
-            SELECT 
-                EXTRACT(MONTH FROM appointment_date) AS month,
-                COUNT(*) 
-            FROM appointment
-            GROUP BY month
-            ORDER BY month;
-        """).fetchall()
+        # Blood type distribution
+        bloodtype_counts = db.session.execute(
+            text("SELECT blood_type, COUNT(*) FROM patient GROUP BY blood_type")
+        ).fetchall()
 
-        # Prepare data for charts
-        months = [int(row[0]) for row in monthly_counts]
-        counts = [row[1] for row in monthly_counts]
+        # Appointment status distribution
+        appt_status_counts = db.session.execute(
+            text("SELECT status, COUNT(*) FROM appointment GROUP BY status")
+        ).fetchall()
 
-        stats = {
-            "patients": {
-                "total": total_patients,
-                "male": male_patients,
-                "female": female_patients,
-            },
-            "appointments": {
-                "total": total_appointments,
-                "pending": pending_appointments,
-                "confirmed": confirmed_appointments,
-                "cancelled": cancelled_appointments,
-            },
-            "monthly": {
-                "months": months,
-                "counts": counts
-            }
-        }
+        # Appointments per month
+        appt_monthly = db.session.execute(
+            text("""
+                SELECT 
+                    TO_CHAR(appointment_date, 'Mon YYYY') AS month,
+                    COUNT(*)
+                FROM appointment
+                GROUP BY month
+                ORDER BY MIN(appointment_date)
+            """)
+        ).fetchall()
 
-        return render_template('reports.html', stats=stats)
+        return render_template(
+            'reports.html',
+            total_patients=total_patients,
+            gender_counts=gender_counts,
+            bloodtype_counts=bloodtype_counts,
+            appt_status_counts=appt_status_counts,
+            appt_monthly=appt_monthly
+        )
 
     except Exception as e:
         flash(f"Error loading reports: {str(e)}", "error")
-        return render_template('reports.html', stats={})
+        return redirect(url_for('main.dashboard'))
