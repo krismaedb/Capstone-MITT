@@ -13,8 +13,43 @@ main_bp = Blueprint('main', __name__)
 def index():
     return render_template('index.html')
 
-@main_bp.route('/appointment')
+@main_bp.route('/appointment', methods=['GET', 'POST'])
 def appointment():
+    if request.method == 'POST':
+        try:
+            name = request.form.get('name')
+            email = request.form.get('email')
+            phone = request.form.get('phone')
+            appt_date = datetime.strptime(request.form.get('appointment_date'), '%Y-%m-%d').date()
+            appt_time = request.form.get('appointment_time')
+            doctor = request.form.get('doctor')
+            department = request.form.get('department')
+            reason = request.form.get('reason')
+
+            appointment = Appointment(
+                patient_id=None,
+                patient_name=name,
+                patient_email=email,
+                patient_phone=phone,
+                appointment_date=appt_date,
+                appointment_time=appt_time,
+                doctor=doctor,
+                department=department,
+                reason=reason,
+                status="pending",   # <-- FIXED: Public form = pending
+                notes=None
+            )
+
+            db.session.add(appointment)
+            db.session.commit()
+
+            flash("Your appointment request has been submitted! Please wait for admin approval.", "success")
+            return redirect(url_for('main.appointment'))
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error submitting appointment: {str(e)}", "error")
+
     return render_template('appointment.html')
 
 # ========== AUTHENTICATION ==========
