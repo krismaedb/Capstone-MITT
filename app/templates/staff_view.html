@@ -1,0 +1,75 @@
+{% extends "base_dashboard.html" %}
+{% block content %}
+
+<div class="container py-5" style="max-width: 650px;">
+
+    <h2 class="text-center mb-4 fw-bold">Staff Details</h2>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-md-8">
+                    <h5><i class="fas fa-user"></i> {{ staff.full_name }}</h5>
+                    <p class="text-muted">{{ staff.email }}</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <span class="badge 
+                        {% if staff.role == 'admin' %}bg-danger
+                        {% elif staff.role == 'it' %}bg-info
+                        {% elif staff.role == 'doctor' %}bg-success
+                        {% elif staff.role == 'nurse' %}bg-warning
+                        {% endif %}">
+                        {{ staff.role|title }}
+                    </span>
+                    {% if staff.is_active %}
+                        <span class="badge bg-success">Active</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Inactive</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Username:</strong> {{ staff.username }}</p>
+                    <p><strong>Created:</strong> {{ staff.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                    <p><strong>Last Login:</strong> 
+                        {% if staff.last_login %}
+                            {{ staff.last_login.strftime('%Y-%m-%d %H:%M') }}
+                        {% else %}
+                            Never
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Account Status:</strong> 
+                        {% if staff.is_active %}
+                            <span class="badge bg-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Inactive</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="d-flex gap-2">
+                <a href="/staff/edit/{{ staff.id }}" class="btn btn-warning"><i class="fas fa-edit"></i> Edit</a>
+                {% if current_user.id != staff.id %}
+                <form method="POST" action="/staff/delete/{{ staff.id }}" onsubmit="return confirm('Are you sure you want to delete this staff member?');">
+                    <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> Delete</button>
+                </form>
+                {% endif %}
+                <a href="/staff" class="btn btn-outline-secondary">Back to List</a>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
