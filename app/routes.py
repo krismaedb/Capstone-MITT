@@ -380,3 +380,141 @@ def reports():
         flash(f"Error loading reports: {str(e)}", "error")
         return redirect(url_for('main.dashboard'))
     
+
+
+
+# ========== STAFF MANAGEMENT ==========
+
+@main_bp.route('/staff')
+@login_required
+def staff_list():
+    if current_user.role not in ['admin', 'it']:
+        flash('Access denied. Staff management requires admin or IT privileges.', 'error')
+        return redirect(url_for('main.dashboard'))
+    
+    try:
+        search = request.args.get('search', '')
+        if search:
+            staff = User.query.filter(
+                (User.full_name.ilike(f'%{search}%')) |
+                (User.username.ilike(f'%{search}%')) |
+                (User.email.ilike(f'%{search}%'))
+            ).order_by(User.created_at.desc()).all()
+        else:
+            staff = User.query.order_by(User.created_at.desc()).all()
+        return render_template('staff_list.html', staff=staff, search=search)
+    except Exception as e:
+        flash(f'Error loading staff: {str(e)}', 'error')
+        return render_template('staff_list.html', staff=[], search='')
+
+@main_bp.route('/staff/add', methods=['GET', 'POST'])
+@login_required
+def staff_add():
+    if current_user.role not in ['admin', 'it']:
+        flash('Access denied. Staff management requires admin or IT privileges.', 'error')
+        return redirect(url_for('main.dashboard'))
+    
+    if request.method == 'POST':
+        try:
+            username = request.form.get('username')
+            full_name = request.form.get('full_name')
+            email = request.form.get('email')
+            password = request.form.get('password')
+            role = request.form.get('role')
+            
+            # Validate required fields
+            if not username or not full_name or not email or not password or not role:
+                flash('All fields are required!', 'error')
+                return redirect(url_for('main.staff_add'))
+            
+            # Check if username/email already exists
+            if User.query.filter_by(username=username).first():
+                flash('Username already exists.', 'error')
+                return redirect(url_for('main.staff_add'))
+            if User.query.filter_by(email=email).first():
+                flash('Email already exists.', 'error')
+                return redirect(url_for('main.staff_add'))
+            
+            # Create new user
+            user = User(
+                username=username,
+                full_name=full_name,
+                email=email,
+                role=role,
+                is_active=True  # default active
+            )
+            user.set_password(password)  # Hash password
+            
+            db.session.add(user)
+            db.session.commit()
+            
+            flash(f'Staff member "{full_name}" added successfully!', 'success')
+            return redirect(url_for('main.staff_list'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error adding staff: {str(e)}', 'error')
+    
+    return render_template('staff_add.html')
+
+@main_bp.route('/staff/view/<int:id>')
+@login_required
+def staff_view(id):
+    if current_user.role not in ['admin', 'it']:
+        flash('Access denied. Staff management requires admin or IT privileges.', 'error')
+        return redirect(url_for('main.dashboard'))
+    
+    try:
+        staff = User.query.get_or_404(id)
+        return render_template('staff_view.html', staff=staff)
+    except Exception as e:
+        flash(f'Error: {str(e)}', 'error')
+        return redirect(url_for('main.staff_list'))
+
+@main_bp.route('/staff/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def staff_edit(id):
+    if current_user.role not in ['admin', 'it']:
+        flash('Access denied. Staff management requires admin or IT privileges.', 'error')
+        return redirect(url_for('main.dashboard'))
+    
+    try:
+        staff = User.query.get_or_404(id)
+        if request.method == 'POST':
+            staff.full_name = request.form.get('full_name')
+            staff.email = request.form.get('email')
+            staff.role = request.form.get('role')
+            staff.is_active = True if request.form.get('is_active') else False
+            staff.updated_at = datetime.utcnow()
+            
+            # Optional: Change password
+            new_password = request.form.get('new_password')
+            if new_password:
+                staff.set_password(new_password)
+            
+            db.session.commit()
+            flash(f'Staff member "{staff.full_name}" updated successfully!', 'success')
+            return redirect(url_for('main.staff_view', id=id))
+        
+        return render_template('staff_edit.html', staff=staff)
+    except Exception as e:
+        flash(f'Error: {str(e)}', 'error')
+        return redirect(url_for('main.staff_list'))
+
+@main_bp.route('/staff/delete/<int:id>', methods=['POST'])
+@login_required
+def staff_delete(id):
+    if current_user.role not in ['admin', 'it']:
+        flash('Access denied. Staff management requires admin or IT privileges.', 'error')
+        return redirect(url_for('main.dashboard'))
+    
+    try:
+        staff = User.query.get_or_404(id)
+        name = staff.full_name
+        db.session.delete(staff)
+        db.session.commit()
+        flash(f'Staff member "{name}" deleted successfully!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error deleting staff: {str(e)}', 'error')
+    return redirect(url_for('main.staff_list'))

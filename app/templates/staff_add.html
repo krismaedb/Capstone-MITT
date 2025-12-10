@@ -1,0 +1,61 @@
+{% extends "base_dashboard.html" %}
+{% block content %}
+
+<div class="container py-5" style="max-width: 650px;">
+
+    <h2 class="text-center mb-4 fw-bold">Add New Staff Member</h2>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <form action="{{ url_for('main.staff_add') }}" method="POST">
+
+                <!-- Full Name -->
+                <div class="mb-3">
+                    <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                    <input type="text" name="full_name" class="form-control" required>
+                </div>
+
+                <!-- Username -->
+                <div class="mb-3">
+                    <label class="form-label">Username <span class="text-danger">*</span></label>
+                    <input type="text" name="username" class="form-control" required>
+                </div>
+
+                <!-- Email -->
+                <div class="mb-3">
+                    <label class="form-label">Email <span class="text-danger">*</span></label>
+                    <input type="email" name="email" class="form-control" required>
+                </div>
+
+                <!-- Password -->
+                <div class="mb-3">
+                    <label class="form-label">Password <span class="text-danger">*</span></label>
+                    <input type="password" name="password" class="form-control" required>
+                </div>
+
+                <!-- Role -->
+                <div class="mb-3">
+                    <label class="form-label">Role <span class="text-danger">*</span></label>
+                    <select name="role" class="form-select" required>
+                        <option value="" disabled selected>Select role</option>
+                        <option value="admin">Administrator</option>
+                        <option value="it">IT Staff</option>
+                        <option value="doctor">Doctor</option>
+                        <option value="nurse">Nurse</option>
+                    </select>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+                    Add Staff Member
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
