@@ -64,7 +64,13 @@
     <div class="top-bar">
         <div>
             <h2 class="mb-0">Dashboard</h2>
-            <small class="text-muted">Welcome back, {{ current_user.full_name }}!</small>
+            <small class="text-muted">Welcome back, {{ current_user.full_name }}! Last login: 
+                {% if current_user.last_login %}
+                    {{ current_user.last_login.strftime('%Y-%m-%d %H:%M') }}
+                {% else %}
+                    Never
+                {% endif %}
+            </small>
         </div>
         <div class="user-info">
             <div>
