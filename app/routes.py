@@ -107,7 +107,9 @@ def dashboard():
                          total_appointments=total_appointments,
                          pending_appointments=pending_appointments,
                          today_appointments=today_appointments,
-                         recent_appointments=recent_appointments)
+                         recent_appointments=recent_appointments,
+                         current_user=current_user)  # ← Add this
+                         
 
 # ========== PATIENTS ==========
 
@@ -518,3 +520,40 @@ def staff_delete(id):
         db.session.rollback()
         flash(f'Error deleting staff: {str(e)}', 'error')
     return redirect(url_for('main.staff_list'))
+
+
+
+
+
+
+# ========== SETTINGS ==========
+
+@main_bp.route('/settings')
+@login_required
+def settings():
+    return render_template('settings.html', user=current_user)
+
+
+@main_bp.route('/change-password', methods=['POST'])
+@login_required
+def change_password():
+    current_password = request.form.get('current_password')
+    new_password = request.form.get('new_password')
+    confirm_password = request.form.get('confirm_password')
+
+    if not current_password or not new_password or not confirm_password:
+        flash('All fields are required.', 'error')
+        return redirect(url_for('main.settings'))
+
+    if new_password != confirm_password:
+        flash('New passwords do not match.', 'error')
+        return redirect(url_for('main.settings'))
+
+    if not current_user.check_password(current_password):
+        flash('Current password is incorrect.', 'error')
+        return redirect(url_for('main.settings'))
+
+    current_user.set_password(new_password)
+    db.session.commit()
+    flash('Password updated successfully!', 'success')
+    return redirect(url_for('main.settings'))
