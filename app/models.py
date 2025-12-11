@@ -56,7 +56,7 @@ class Appointment(db.Model):
     __tablename__ = 'appointments'
     
     id = db.Column(db.Integer, primary_key=True)
-    patient_id = db.Column(db.Integer, db.ForeignKey('patients.id'), nullable=False)
+    patient_id = db.Column(db.Integer, db.ForeignKey('patients.id'), nullable=True)
     patient_name = db.Column(db.String(100), nullable=False)
     patient_email = db.Column(db.String(120))
     patient_phone = db.Column(db.String(20))
