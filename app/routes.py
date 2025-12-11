@@ -340,27 +340,34 @@ def reports():
         total_patients = db.session.query(Patient).count()
 
         # Gender distribution
-        gender_counts = db.session.execute(
-            text("SELECT gender, COUNT(*) as count FROM patients GROUP BY gender")
+        gender_rows = db.session.execute(
+            text("SELECT gender, COUNT(*) FROM patients GROUP BY gender")
         ).fetchall()
+        gender_labels = [row[0] for row in gender_rows if row[0] is not None]
+        gender_data = [row[1] for row in gender_rows if row[0] is not None]
 
         # Blood type distribution
-        bloodtype_counts = db.session.execute(
-            text("SELECT blood_type, COUNT(*) as count FROM patients GROUP BY blood_type")
+        blood_rows = db.session.execute(
+            text("SELECT blood_type, COUNT(*) FROM patients GROUP BY blood_type")
         ).fetchall()
+        blood_labels = [row[0] for row in blood_rows if row[0] is not None]
+        blood_data = [row[1] for row in blood_rows if row[0] is not None]
 
         # Appointment status distribution
-        appt_status_counts = db.session.execute(
-            text("SELECT status, COUNT(*) as count FROM appointments GROUP BY status")
+        status_rows = db.session.execute(
+            text("SELECT status, COUNT(*) FROM appointments GROUP BY status")
         ).fetchall()
+        status_labels = [row[0] for row in status_rows if row[0] is not None]
+        status_data = [row[1] for row in status_rows if row[0] is not None]
 
-        # Appointments per month (PostgreSQL-safe version)
-        appt_monthly = db.session.execute(
+        # Appointments per month
+        month_rows = db.session.execute(
             text("""
                 SELECT 
                     TO_CHAR(appointment_date, 'Mon YYYY') AS month,
                     COUNT(*) as count
                 FROM appointments
+                WHERE appointment_date IS NOT NULL
                 GROUP BY TO_CHAR(appointment_date, 'Mon YYYY'), 
                          EXTRACT(YEAR FROM appointment_date),
                          EXTRACT(MONTH FROM appointment_date)
@@ -368,20 +375,25 @@ def reports():
                          EXTRACT(MONTH FROM appointment_date)
             """)
         ).fetchall()
+        month_labels = [row[0] for row in month_rows]
+        month_data = [row[1] for row in month_rows]
 
         return render_template(
             'reports.html',
             total_patients=total_patients,
-            gender_counts=gender_counts,
-            bloodtype_counts=bloodtype_counts,
-            appt_status_counts=appt_status_counts,
-            appt_monthly=appt_monthly
+            gender_labels=gender_labels,
+            gender_data=gender_data,
+            blood_labels=blood_labels,
+            blood_data=blood_data,
+            status_labels=status_labels,
+            status_data=status_data,
+            month_labels=month_labels,
+            month_data=month_data
         )
 
     except Exception as e:
         flash(f"Error loading reports: {str(e)}", "error")
         return redirect(url_for('main.dashboard'))
-    
 
 
 
