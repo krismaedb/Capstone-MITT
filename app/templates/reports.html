@@ -31,17 +31,17 @@
 
 <script>
 // Convert backend data → JS arrays
-const genderLabels = {{ gender_counts|map(attribute=0)|list }};
-const genderData = {{ gender_counts|map(attribute=1)|list }};
+const genderLabels = {{ gender_labels | tojson }};
+const genderData = {{ gender_data | tojson }};
 
-const bloodLabels = {{ bloodtype_counts|map(attribute=0)|list }};
-const bloodData = {{ bloodtype_counts|map(attribute=1)|list }};
+const bloodLabels = {{ blood_labels | tojson }};
+const bloodData = {{ blood_data | tojson }};
 
-const statusLabels = {{ appt_status_counts|map(attribute=0)|list }};
-const statusData = {{ appt_status_counts|map(attribute=1)|list }};
+const statusLabels = {{ status_labels | tojson }};
+const statusData = {{ status_data | tojson }};
 
-const monthLabels = {{ appt_monthly|map(attribute=0)|list }};
-const monthData = {{ appt_monthly|map(attribute=1)|list }};
+const monthLabels = {{ month_labels | tojson }};
+const monthData = {{ month_data | tojson }};
 
 // Gender Chart
 new Chart(document.getElementById('genderChart'), {
