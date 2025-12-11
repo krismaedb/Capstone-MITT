@@ -74,6 +74,12 @@
     <div class="card shadow-sm w-100">
         <div class="card-body">
             <form action="{{ url_for('main.appointment') }}" method="POST">
+                <!-- Patient ID (Optional) -->
+                <div class="mb-3">
+                    <label class="form-label">Patient ID (Optional)</label>
+                    <input type="text" name="patient_id_input" class="form-control" placeholder="e.g. P00001">
+                    <small class="text-muted">If you're a returning patient, enter your ID to link this appointment to your record.</small>
+                </div>
 
                 <!-- Full Name -->
                 <div class="mb-3">

@@ -25,9 +25,24 @@ def appointment():
             doctor = request.form.get('doctor')
             department = request.form.get('department')
             reason = request.form.get('reason')
+            
+            # 🔍 NEW: Check if patient ID was provided
+            patient_id_input = request.form.get('patient_id_input', '').strip()
+            linked_patient = None
+            actual_patient_id = None
+
+            if patient_id_input:
+                # Look up patient by patient_id (e.g., "P00001")
+                linked_patient = Patient.query.filter_by(patient_id=patient_id_input).first()
+                if linked_patient:
+                    actual_patient_id = linked_patient.id
+                    # Use stored name/email/phone if not provided
+                    name = name or f"{linked_patient.first_name} {linked_patient.last_name}"
+                    email = email or linked_patient.email
+                    phone = phone or linked_patient.phone
 
             appointment = Appointment(
-                patient_id=None,
+                patient_id=actual_patient_id,  # ← Will be None or valid ID
                 patient_name=name,
                 patient_email=email,
                 patient_phone=phone,
@@ -50,7 +65,7 @@ def appointment():
             db.session.rollback()
             flash(f"Error submitting appointment: {str(e)}", "error")
 
-    return render_template('appointment.html')  # ← Uses base_public.html
+    return render_template('appointment.html')
 
 # ========== AUTHENTICATION ==========
 
