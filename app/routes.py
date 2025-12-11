@@ -36,7 +36,7 @@ def appointment():
                 doctor=doctor,
                 department=department,
                 reason=reason,
-                status="pending",   # <-- FIXED: Public form = pending
+                status="pending",
                 notes=None
             )
 
@@ -50,7 +50,7 @@ def appointment():
             db.session.rollback()
             flash(f"Error submitting appointment: {str(e)}", "error")
 
-    return render_template('appointment.html')
+    return render_template('appointment.html')  # ← Uses base_public.html
 
 # ========== AUTHENTICATION ==========
 
