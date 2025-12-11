@@ -336,63 +336,70 @@ def appointments_delete(id):
 @login_required
 def reports():
     try:
-        # Total patients
         total_patients = db.session.query(Patient).count()
 
-        # Gender distribution
-        gender_rows = db.session.execute(
-            text("SELECT gender, COUNT(*) FROM patients GROUP BY gender")
-        ).fetchall()
-        gender_labels = [row[0] for row in gender_rows if row[0] is not None]
-        gender_data = [row[1] for row in gender_rows if row[0] is not None]
+        # Gender
+        gender_rows = db.session.query(Patient.gender, db.func.count(Patient.id))\
+                                .filter(Patient.gender.isnot(None))\
+                                .group_by(Patient.gender).all()
+        gender_labels = [str(g[0]) for g in gender_rows]
+        gender_data = [int(g[1]) for g in gender_rows]
 
-        # Blood type distribution
-        blood_rows = db.session.execute(
-            text("SELECT blood_type, COUNT(*) FROM patients GROUP BY blood_type")
-        ).fetchall()
-        blood_labels = [row[0] for row in blood_rows if row[0] is not None]
-        blood_data = [row[1] for row in blood_rows if row[0] is not None]
+        # Blood Type
+        blood_rows = db.session.query(Patient.blood_type, db.func.count(Patient.id))\
+                               .filter(Patient.blood_type.isnot(None))\
+                               .group_by(Patient.blood_type).all()
+        blood_labels = [str(b[0]) for b in blood_rows]
+        blood_data = [int(b[1]) for b in blood_rows]
 
-        # Appointment status distribution
-        status_rows = db.session.execute(
-            text("SELECT status, COUNT(*) FROM appointments GROUP BY status")
-        ).fetchall()
-        status_labels = [row[0] for row in status_rows if row[0] is not None]
-        status_data = [row[1] for row in status_rows if row[0] is not None]
+        # Appointment Status
+        status_rows = db.session.query(Appointment.status, db.func.count(Appointment.id))\
+                                .filter(Appointment.status.isnot(None))\
+                                .group_by(Appointment.status).all()
+        status_labels = [str(s[0]) for s in status_rows]
+        status_data = [int(s[1]) for s in status_rows]
 
-        # Appointments per month
+        # Monthly Appointments (PostgreSQL-friendly)
         month_rows = db.session.execute(
             text("""
-                SELECT 
-                    TO_CHAR(appointment_date, 'Mon YYYY') AS month,
-                    COUNT(*) as count
+                SELECT TO_CHAR(appointment_date, 'Mon YYYY'), COUNT(*)
                 FROM appointments
                 WHERE appointment_date IS NOT NULL
-                GROUP BY TO_CHAR(appointment_date, 'Mon YYYY'), 
+                GROUP BY TO_CHAR(appointment_date, 'Mon YYYY'),
                          EXTRACT(YEAR FROM appointment_date),
                          EXTRACT(MONTH FROM appointment_date)
                 ORDER BY EXTRACT(YEAR FROM appointment_date),
                          EXTRACT(MONTH FROM appointment_date)
             """)
         ).fetchall()
-        month_labels = [row[0] for row in month_rows]
-        month_data = [row[1] for row in month_rows]
+        month_labels = [str(m[0]) for m in month_rows]
+        month_data = [int(m[1]) for m in month_rows]
 
-        return render_template(
-            'reports.html',
-            total_patients=total_patients,
-            gender_labels=gender_labels,
-            gender_data=gender_data,
-            blood_labels=blood_labels,
-            blood_data=blood_data,
-            status_labels=status_labels,
-            status_data=status_data,
-            month_labels=month_labels,
-            month_data=month_data
-        )
+        
+        # DEBUG: Print to console
+        print("Gender:", list(zip(gender_labels, gender_data)))
+        print("Blood:", list(zip(blood_labels, blood_data)))
+        print("Status:", list(zip(status_labels, status_data)))
+        print("Months:", list(zip(month_labels, month_data)))
+
+        # Ensure all are lists (even if empty)
+        context = {
+            'total_patients': total_patients,
+            'gender_labels': gender_labels or [],
+            'gender_data': gender_data or [],
+            'blood_labels': blood_labels or [],
+            'blood_data': blood_data or [],
+            'status_labels': status_labels or [],
+            'status_data': status_data or [],
+            'month_labels': month_labels or [],
+            'month_data': month_data or []
+        }
+
+        return render_template('reports.html', **context)
 
     except Exception as e:
-        flash(f"Error loading reports: {str(e)}", "error")
+        print("REPORTS ERROR:", str(e))  # ← Check terminal!
+        flash(f"Error: {str(e)}", "error")
         return redirect(url_for('main.dashboard'))
 
 

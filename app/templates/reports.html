@@ -30,18 +30,18 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-// Convert backend data → JS arrays
-const genderLabels = {{ gender_labels | tojson }};
-const genderData = {{ gender_data | tojson }};
+//Convert this tojson
+const genderLabels = {{ gender_labels | tojson if gender_labels is defined else '[]' }};
+const genderData = {{ gender_data | tojson if gender_data is defined else '[]' }};
 
-const bloodLabels = {{ blood_labels | tojson }};
-const bloodData = {{ blood_data | tojson }};
+const bloodLabels = {{ blood_labels | tojson if blood_labels is defined else '[]' }};
+const bloodData = {{ blood_data | tojson if blood_data is defined else '[]' }};
 
-const statusLabels = {{ status_labels | tojson }};
-const statusData = {{ status_data | tojson }};
+const statusLabels = {{ status_labels | tojson if status_labels is defined else '[]' }};
+const statusData = {{ status_data | tojson if status_data is defined else '[]' }};
 
-const monthLabels = {{ month_labels | tojson }};
-const monthData = {{ month_data | tojson }};
+const monthLabels = {{ month_labels | tojson if month_labels is defined else '[]' }};
+const monthData = {{ month_data | tojson if month_data is defined else '[]' }};
 
 // Gender Chart
 new Chart(document.getElementById('genderChart'), {
