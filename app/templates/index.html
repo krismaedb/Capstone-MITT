@@ -9,19 +9,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         /* ✅ Full-page background hero */
-        .hero-bg {
-            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.7)), 
-                        url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            color: white;
-            min-height: 60vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 3rem;
-        }
+        body {
+        background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.95)), 
+                    url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80') center/cover fixed no-repeat;
+        color: #333;
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+    }
 
         .hero-content {
             text-align: center;
@@ -40,6 +35,14 @@
             margin: 0 auto 1.5rem;
         }
 
+        .section {
+        padding: 4rem 0;
+        backdrop-filter: blur(5px);
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+
+
         /* Keep your existing card hover effects */
         .card {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -55,6 +58,10 @@
         .btn:hover {
             transform: scale(1.03);
         }
+        footer {
+        background: rgba(0, 0, 0, 0.8) !important;
+        color: white;
+    }
     </style>
 </head>
 <body>
@@ -87,7 +94,7 @@
     </header>
 
     <!-- Rest of your content stays exactly the same -->
-    <section class="py-5">
+    <section class="section">
         <div class="container">
             <h2 class="text-center mb-5">Our Services</h2>
             <div class="row g-4">
@@ -170,7 +177,7 @@
     </section>
 
     <!-- FOOTER -->
-    <footer class="bg-primary text-white py-4">
+    <footer class="bg-dark text-white py-4">
         <div class="container">
             <div class="row">
                 <div class="col-md-4 mb-3">
