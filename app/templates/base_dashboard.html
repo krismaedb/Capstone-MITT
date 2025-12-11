@@ -45,9 +45,17 @@
         <h4>HealthClinic</h4>
     </div>
     <ul class="sidebar-menu">
-        <li><a href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+       <li><a href="/dashboard" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
         <li><a href="/patients"><i class="fas fa-users"></i> Patients</a></li>
         <li><a href="/appointments"><i class="fas fa-calendar-alt"></i> Appointments</a></li>
+        {% if current_user.role == 'admin' or current_user.role == 'it' %}
+        <li><a href="/staff"><i class="fas fa-user-md"></i> Staff Management</a></li>
+        {% endif %}
+        <li><a href="/reports"><i class="fas fa-chart-line"></i> Reports</a></li>
+        {% if current_user.role == 'it' %}
+        <li><a href="/monitoring"><i class="fas fa-server"></i> IT Monitoring</a></li>
+        {% endif %}
+        <li><a href="/settings"><i class="fas fa-cog"></i> Settings</a></li>
         <li><a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
     </ul>
 </div>
